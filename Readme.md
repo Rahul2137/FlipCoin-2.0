@@ -6,4 +6,3 @@
 
 https://drive.google.com/file/d/1BK3GZsDhOZ5gZohogON38xKxYvOT-LKr/preview
   
-[![Watch the video](https://i.stack.imgur.com/Vp2cE.png)](https://drive.google.com/file/d/1BK3GZsDhOZ5gZohogON38xKxYvOT-LKr/preview)
