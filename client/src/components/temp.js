@@ -10,7 +10,7 @@ function isEmpty(obj) {
   return Object.keys(obj).length === 0;
 }
 
-const Cart = ({ getCart, deleteCart }) => {
+const Cart = ({ getCart }) => {
   const userinfo = useSelector((state) => state.user);
   const info = useSelector((state) => state.contract);
   let flipBank = info?.contractDetails.flipBank;
@@ -109,7 +109,6 @@ const Cart = ({ getCart, deleteCart }) => {
       totalcoin += to_pay * product.receiveRate;
       addToJSON(product.sellerId, to_pay);
     });
-    console.log("toPay", toPay);
     setPayCoins(toPay);
     setToPayCoins(totalcoin);
 
@@ -134,7 +133,6 @@ const Cart = ({ getCart, deleteCart }) => {
         addToget(product.sellerId, offeredCoins);
       }
     });
-    console.log("toGet", toGet);
     setGetCoins(toGet);
   };
   useEffect(() => {
@@ -160,7 +158,6 @@ const Cart = ({ getCart, deleteCart }) => {
     setItems(items.filter((item) => item.id !== id));
   };
   const handlePay = () => {
-    console.log(payCoins, getCoins);
     if (toPay !== 0) {
       for (const key in payCoins) {
         if (payCoins.hasOwnProperty(key)) {
@@ -192,7 +189,6 @@ const Cart = ({ getCart, deleteCart }) => {
       }
     }
     setGetCoins([]);
-    deleteCart();
     setPayCoins([]);
     setItems([]);
   };

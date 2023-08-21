@@ -53,7 +53,9 @@ contract Seller {
     }
 
     function getSellerInfo(address _brand) public view returns (uint _offer_rate,uint _offer_cap, uint _receive_rate, uint _receive_cap) {
-        require(isRegistered[_brand] == true);
-        return (sellersList[_brand].offer_rate, sellersList[_brand].offer_cap, sellersList[_brand].receive_rate, sellersList[_brand].receive_cap);
+        if(isRegistered[_brand] == true){
+            return (sellersList[_brand].offer_rate, sellersList[_brand].offer_cap, sellersList[_brand].receive_rate, sellersList[_brand].receive_cap);
+        }
+        return (0, 0,0, 0);
     }
 }

@@ -1,18 +1,30 @@
 import React, { useEffect, useState } from "react";
 import HomeNavbar from "./HomeNavbar";
 import OutfitCard from "./OutfitCard";
-import PropTypes from 'prop-types';
-import IconButton from '@mui/material/IconButton';
-import CloseIcon from '@mui/icons-material/Close';
-import { Box, Button, Dialog, DialogTitle, Typography, DialogContent, DialogActions, TextField, Grid, Tooltip, Paper } from "@mui/material";
-import { styled } from '@mui/material/styles';
+import PropTypes from "prop-types";
+import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogTitle,
+  Typography,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Grid,
+  Tooltip,
+  Paper,
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
 import { getMainActions } from "../../app/actions/mainActions";
 import { connect, useSelector } from "react-redux";
 import { logout } from "../../shared/utils/logout";
 import { getAuthActions } from "../../app/actions/authActions";
 import { useNavigate } from "react-router-dom";
 import web3Reducer from "../../shared/components/web3Reducer";
-import Web3 from 'web3';
+import Web3 from "web3";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -25,10 +37,10 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
 
 function BootstrapDialogTitle(props) {
   const { children, onClose, ...other } = props;
-  
+
   // const [coinBalance, setCoinBalance] = useState("Fetching...");
   // const [spending, setSpending] = useState("Fetching...");
-  // const [transactions, setTransactions] = useState("Fetching"); 
+  // const [transactions, setTransactions] = useState("Fetching");
 
   return (
     <DialogTitle sx={{ m: 0, p: 2 }} {...other}>
@@ -69,6 +81,7 @@ const HomePage = ({
   const [openProduct, setOpenProduct] = useState(false);
   const [openBuy, setOpenBuy] = useState(false);
   const [buyValue, setBuyValue] = useState(null);
+  const [showingCount, setShowingCount] = useState(5);
   const [sellValue, setSellValue] = useState(null);
   const [etherValue, setEtherValue] = useState(null);
   const [productName, setProductName] = useState("");
@@ -78,7 +91,7 @@ const HomePage = ({
   const info = useSelector((state) => state.contract);
   let flipBank = info?.contractDetails.flipBank;
   let flipCoin = info?.contractDetails.flipCoin;
-  let accounts = info?.contractDetails.accounts
+  let accounts = info?.contractDetails.accounts;
 
   const web3 = window.web3;
 
@@ -99,22 +112,37 @@ const HomePage = ({
   }
 
   const handleBuyClick = async () => {
-    if(!isEmpty(flipBank)){
-      await flipBank?.buyFlipCoins().send({from: accounts[0], value: web3.utils.toWei(etherValue, 'ether')})
-      .then(b => {console.log("Buy Transaction successful")})
-      .catch(error => console.error('Error in the buy Coin Transaction:', error));
+    if (!isEmpty(flipBank)) {
+      await flipBank
+        ?.buyFlipCoins()
+        .send({
+          from: accounts[0],
+          value: web3.utils.toWei(etherValue, "ether"),
+        })
+        .then((b) => {
+          console.log("Buy Transaction successful");
+        })
+        .catch((error) =>
+          console.error("Error in the buy Coin Transaction:", error)
+        );
     }
     handleCloseBuy();
-  }
+  };
 
   const handleSellClick = async () => {
-    if(!isEmpty(flipBank)){
-      await flipBank?.sellFlipCoins(sellValue).send({from: accounts[0]})
-      .then(b => {console.log("Sell Transaction successful")})
-      .catch(error => console.error('Error in sell coin transaction:', error));
+    if (!isEmpty(flipBank)) {
+      await flipBank
+        ?.sellFlipCoins(sellValue)
+        .send({ from: accounts[0] })
+        .then((b) => {
+          console.log("Sell Transaction successful");
+        })
+        .catch((error) =>
+          console.error("Error in sell coin transaction:", error)
+        );
     }
     handleCloseBuy();
-  }
+  };
 
   const handleCloseBuy = () => {
     setOpenBuy(false);
@@ -145,10 +173,20 @@ const HomePage = ({
   };
 
   const handleLoyaltySubmit = async () => {
-    if(!isEmpty(flipBank)){
-      await flipBank?.registerSeller(user.userId,loyaltyData.offerRate, loyaltyData.offerCap, loyaltyData.recieveRate, loyaltyData.recieveCap).send({from: accounts[0]})
-      .then(b => {console.log("Seller Registered")})
-      .catch(error => console.error('Error in Registering Seller:', error));
+    if (!isEmpty(flipBank)) {
+      await flipBank
+        ?.registerSeller(
+          user.userId,
+          loyaltyData.offerRate,
+          loyaltyData.offerCap,
+          loyaltyData.recieveRate,
+          loyaltyData.recieveCap
+        )
+        .send({ from: accounts[0] })
+        .then((b) => {
+          console.log("Seller Registered");
+        })
+        .catch((error) => console.error("Error in Registering Seller:", error));
     }
 
     availLoyaltyProgram();
@@ -201,8 +239,29 @@ const HomePage = ({
   // console.log(useSelector((state) => state.main.productList))
   const [outfitList, setOutfitList] = useState([]);
 
+  const ChunkedOutfitList = () => {
+    const chunkArray = (array, showingCount) => {
+      const chunks = [];
+      for (let i = 0; i < array.length; i += showingCount) {
+        chunks.push(array.slice(i, i + showingCount));
+      }
+      return chunks;
+    };
+
+    const outfitChunks = chunkArray(outfitList, 5);
+
+    return (
+      <>
+        {outfitChunks.map((chunk, index) => (
+          <OutfitCard key={index} outfitDetails={chunk} />
+        ))}
+      </>
+    );
+  };
+
   useEffect(() => {
     const userDetails = JSON.parse(localStorage.getItem("user"));
+    console.log(userDetails);
     if (!userDetails) {
       logout();
     }
@@ -229,7 +288,10 @@ const HomePage = ({
         <Button
           variant="contained"
           color="success"
-          sx={{ mr: 5 }}
+          sx={{
+            mr: 5,
+            display: user?.availedLoyaltyProgram ? "block" : "none",
+          }}
           onClick={() => setOpenBuy(true)}
         >
           Buy / Sell Coins
@@ -248,24 +310,85 @@ const HomePage = ({
           <DialogContent dividers>
             <Grid container>
               <Grid item sx={{ mr: 2 }}>
-                <Paper elevation={2} sx={{padding: "20px"}}>
-                  <Typography variant="body1" sx={{ mb: 2 }}>Current Exchange rate is: 1000000</Typography>
-                  <TextField id="outlined-basic" disabled={sellValue} sx={{ mb: 2 }} value={buyValue} onChange={(e) => { setBuyValue(e.target.value); setEtherValue(e.target.value / 1000000); }} label={etherValue ? "" : "Number of Coins"} variant="outlined" /><br />
-                  <TextField id="outlined-basic" disabled={sellValue} value={etherValue} onChange={(e) => { setEtherValue(e.target.value); setBuyValue(e.target.value * 100000) }} label={buyValue ? "" : "Number of ethers"} variant="outlined" />
-                  <Typography variant="body1" sx={{ mt: 2 }}>Total Payable amount: {etherValue}</Typography>
-                  <div style={{ display: "flex", justifyContent: "center", marginTop: "10px" }}><Button autoFocus variant="contained" onClick={handleBuyClick}>
-                    Buy
-                  </Button></div>
+                <Paper elevation={2} sx={{ padding: "20px" }}>
+                  <Typography variant="body1" sx={{ mb: 2 }}>
+                    Current Exchange rate is: 1000000
+                  </Typography>
+                  <TextField
+                    id="outlined-basic"
+                    disabled={sellValue}
+                    sx={{ mb: 2 }}
+                    value={buyValue}
+                    onChange={(e) => {
+                      setBuyValue(e.target.value);
+                      setEtherValue(e.target.value / 1000000);
+                    }}
+                    label={etherValue ? "" : "Number of Coins"}
+                    variant="outlined"
+                  />
+                  <br />
+                  <TextField
+                    id="outlined-basic"
+                    disabled={sellValue}
+                    value={etherValue}
+                    onChange={(e) => {
+                      setEtherValue(e.target.value);
+                      setBuyValue(e.target.value * 100000);
+                    }}
+                    label={buyValue ? "" : "Number of ethers"}
+                    variant="outlined"
+                  />
+                  <Typography variant="body1" sx={{ mt: 2 }}>
+                    Total Payable amount: {etherValue}
+                  </Typography>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      marginTop: "10px",
+                    }}
+                  >
+                    <Button
+                      autoFocus
+                      variant="contained"
+                      onClick={handleBuyClick}
+                    >
+                      Buy
+                    </Button>
+                  </div>
                 </Paper>
               </Grid>
               <Grid item sx={{ mr: 2 }}>
-                <Paper elevation={2} sx={{padding: "20px"}}>
-                  <Typography variant="body1" sx={{ mb: 2 }}>Current Selling rate is: 1000000</Typography>
-                  <TextField id="outlined-basic" disabled={buyValue} value={sellValue} onChange={(e) => setSellValue(e.target.value)} label="Number of Coins" variant="outlined" />
-                  <Typography variant="body1" sx={{ mt: 2 }}>Total value: {sellValue / 1000000}</Typography>
-                  <div style={{ display: "flex", justifyContent: "center", marginTop: "10px" }}><Button autoFocus variant="contained" onClick={handleSellClick}>
-                    Sell
-                  </Button></div>
+                <Paper elevation={2} sx={{ padding: "20px" }}>
+                  <Typography variant="body1" sx={{ mb: 2 }}>
+                    Current Selling rate is: 1000000
+                  </Typography>
+                  <TextField
+                    id="outlined-basic"
+                    disabled={buyValue}
+                    value={sellValue}
+                    onChange={(e) => setSellValue(e.target.value)}
+                    label="Number of Coins"
+                    variant="outlined"
+                  />
+                  <Typography variant="body1" sx={{ mt: 2 }}>
+                    Total value: {sellValue / 1000000}
+                  </Typography>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      marginTop: "10px",
+                    }}
+                  >
+                    <Button
+                      autoFocus
+                      variant="contained"
+                      onClick={handleSellClick}
+                    >
+                      Sell
+                    </Button>
+                  </div>
                 </Paper>
               </Grid>
             </Grid>
@@ -274,7 +397,10 @@ const HomePage = ({
         <Button
           variant="contained"
           color="success"
-          sx={{ mr: 5 }}
+          sx={{
+            mr: 5,
+            display: user?.availedLoyaltyProgram ? "none" : "block",
+          }}
           onClick={handleClickOpen}
         >
           Avail Loalty Program
@@ -488,9 +614,7 @@ const HomePage = ({
           mt: user && user.role === "seller" ? 0 : 9,
         }}
       >
-        <Box sx={{ width: "100%" }}>
-          {outfitList ? <OutfitCard outfitDetails={outfitList} /> : <></>}
-        </Box>
+        <Box sx={{ width: "100%" }}>{ChunkedOutfitList()}</Box>
       </Box>
     </>
   );

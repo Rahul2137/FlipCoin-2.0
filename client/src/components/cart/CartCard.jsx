@@ -58,12 +58,19 @@ const CartCard = ({ item, changeCount, removeItem, addToCart }) => {
           <p>Total: Rs. {item?.price * item?.productQt}</p>
         </div>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <p style={{ margin: "0 0 20px 0" }}>Tokens: {item?.tokens}</p>
           <p style={{ margin: "0 0 20px 0" }}>
-            Total Tokens:{" "}
-            {item?.tokens * item?.productQt > item?.maxToken
-              ? item?.maxToken
-              : item?.tokens * item.productQt}
+            Tokens:{" "}
+            {Math.min(
+              Math.floor((item.price / 100) * item.offerRate),
+              item.offerCap
+            )}
+          </p>
+          <p style={{ margin: "0 0 20px 0" }}>
+            Total Tokens:
+            {Math.min(
+              Math.floor((item.price / 100) * item.offerRate * item.productQt),
+              item.offerCap
+            )}
           </p>
         </div>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -92,8 +99,8 @@ const CartCard = ({ item, changeCount, removeItem, addToCart }) => {
             fontFamily: "Arial, Helvetica, sans-serif",
           }}
         >
-          <p>Max earnable tokens: {item?.maxToken}</p>
-          <p>One token maps to Rs.{item?.mapping}</p>
+          <p>Max earnable tokens: {item?.offerCap}</p>
+          <p>One token maps to Rs.{item?.receiveRate}</p>
         </div>
       </div>
       <img

@@ -11,6 +11,7 @@ const {
 const editLoyaltyProgram = require("../controllers/main/seller/editLoyaltyProgram");
 const getCart = require("../controllers/main/seller/getCart");
 const getSellerProducts = require("../controllers/main/getSellerProducts");
+const deleteCart = require("../controllers/main/deleteCart");
 
 router.get("/getAllProducts", auth, getAllProducts);
 router.get("/getSellerProducts", auth, getSellerProducts);
@@ -20,5 +21,6 @@ router.post("/addNewProduct", auth, addNewProduct);
 router.post("/editProduct", auth, editProduct);
 router.post("/deleteProduct", auth, deleteProduct);
 router.post("/availLoyaltyProgram", auth, editLoyaltyProgram);
+router.post("/deleteCart", auth, deleteCart);
 
 module.exports = router;

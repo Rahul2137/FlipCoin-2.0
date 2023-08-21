@@ -134,6 +134,17 @@ export const getCart = async () => {
   }
 };
 
+export const deleteCart = async () => {
+  try {
+    return await apiClient.post("/main/deleteCart");
+  } catch (exception) {
+    return {
+      error: true,
+      exception,
+    };
+  }
+};
+
 const checkResponseCode = (exception) => {
   const responseCode = exception?.response?.status;
 

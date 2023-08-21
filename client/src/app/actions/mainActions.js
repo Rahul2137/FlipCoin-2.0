@@ -21,6 +21,7 @@ export const getMainActions = (dispatch) => {
     addNewProduct: (data) => dispatch(addNewProduct(data)),
     availLoyaltyProgram: () => dispatch(availLoyaltyProgram()),
     getCart: () => dispatch(getCart()),
+    deleteCart: () => dispatch(deleteCart()),
   };
 };
 
@@ -81,7 +82,9 @@ export const availLoyaltyProgram = () => {
       console.log("response", response);
       dispatch(openAlertMessage(response?.exception?.response?.data));
     } else {
-      const { userDetails } = response?.data;
+      const userDetails = JSON.parse(localStorage.getItem("user"));
+      console.log(userDetails);
+      userDetails.availedLoyaltyProgram = true;
       localStorage.setItem("user", JSON.stringify(userDetails));
       dispatch(setUserDetails(userDetails));
       dispatch(openAlertMessage("Enrolled To Loyalty Program Successfully"));
@@ -99,6 +102,18 @@ export const getCart = () => {
       const { cartDetails } = response?.data;
       console.log("cartDetails", cartDetails);
       return cartDetails;
+    }
+  };
+};
+
+export const deleteCart = () => {
+  return async (dispatch) => {
+    const response = await api.deleteCart();
+    if (response.error) {
+      console.log("response", response);
+      dispatch(openAlertMessage(response?.exception?.response?.data));
+    } else {
+      dispatch(openAlertMessage("Order Successful!"));
     }
   };
 };
